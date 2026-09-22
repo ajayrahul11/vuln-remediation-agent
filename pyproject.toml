@@ -1,0 +1,88 @@
+[project]
+name = "vulnagent"
+version = "0.1.0"
+description = "Fix JIRA-filed security findings by bumping the dependency, testing, and opening a PR."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Proprietary" }
+
+dependencies = [
+  "langgraph>=1.2,<2",
+  "langgraph-checkpoint-postgres>=2.0",
+  "psycopg[binary]>=3.2",
+  "langchain-core>=1.0,<2",
+  "langchain-anthropic>=1.3,<2",
+  "langchain-aws>=1.0",
+
+  "fastapi>=0.118",
+  "uvicorn[standard]>=0.37",
+  "pydantic>=2.11",
+  "pydantic-settings>=2.8",
+
+  "sqlalchemy[asyncio]>=2.0.36",
+  "asyncpg>=0.30",
+  "alembic>=1.14",
+
+  "httpx>=0.28",
+  "tenacity>=9.0",
+  "PyGithub>=2.5",
+  "pyjwt[crypto]>=2.10",
+  "packaging>=24.2",
+  "PyYAML>=6.0",
+  "defusedxml>=0.7",
+
+  "structlog>=24.4",
+  "langfuse>=3.0",
+  "prometheus-client>=0.21",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3",
+  "pytest-asyncio>=0.25",
+  "pytest-cov>=6.0",
+  "respx>=0.22",
+  "ruff>=0.8",
+  "mypy>=1.14",
+  "types-PyYAML",
+  "pre-commit>=4.0",
+  "testcontainers[postgres]>=4.9",
+]
+
+[project.scripts]
+vulnagent = "vulnagent.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vulnagent"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/vulnagent/prompts" = "vulnagent/prompts"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC", "S", "RUF"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+  "integration: needs docker (postgres/sandbox)",
+]
+addopts = "-m 'not integration' --cov=vulnagent --cov-report=term-missing"

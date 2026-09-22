@@ -1,0 +1,20 @@
+# Optional. A repo not listed here is auto-detected: ecosystem from whichever
+# manifest file is present, build/test commands from the ecosystem defaults
+# in catalog/repo_config.py. Add an entry only when a repo needs something
+# different -- a monorepo, a non-standard test command, multiple modules.
+repos:
+  payments-api:
+    repo_full_name: yourco/payments-api
+    default_branch: main
+    ecosystem: maven
+    build_command: "mvn -B -ntp clean verify -DskipTests"
+    test_command: "mvn -B -ntp test"
+    codeowners: ["@yourco/payments-team"]
+
+  notification-worker:
+    repo_full_name: yourco/notification-worker
+    default_branch: main
+    ecosystem: npm
+    build_command: "npm ci && npm run build"
+    test_command: "npm test -- --ci"
+    codeowners: ["@yourco/platform"]

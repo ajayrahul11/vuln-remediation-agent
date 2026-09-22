@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: vulnagent
+      POSTGRES_PASSWORD: vulnagent
+      POSTGRES_DB: vulnagent
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vulnagent"]
+      interval: 5s
+
+  api:
+    build: .
+    command: uvicorn vulnagent.api.main:app --host 0.0.0.0 --port 8080
+    env_file: .env
+    ports: ["8080:8080"]
+    depends_on: [postgres]
+
+# No worker service. `vulnagent poll` is a one-shot command -- run it from a
+# cron entry or a Kubernetes CronJob, not as a long-running container. For
+# local dev, `make poll-watch` loops it in your terminal.
